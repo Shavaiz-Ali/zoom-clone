@@ -11,10 +11,7 @@ interface User {
   imageUrl: string;
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { meetingId: string } }
-) {
+export async function POST({ params }: { params: { meetingId: string } }) {
   try {
     const user = (await currentUser()) as User | null;
     const { meetingId } = await params;
