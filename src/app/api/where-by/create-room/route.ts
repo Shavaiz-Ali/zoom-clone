@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { connectToDatabase } from "@/lib/db";
 import { PreviousMeeting } from "@/schemas/previous-meetings";
 import { currentUser } from "@clerk/nextjs/server";
