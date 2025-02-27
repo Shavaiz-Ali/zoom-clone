@@ -70,9 +70,12 @@ const MeetingCardModel = ({
       }
       setLoader(true);
       try {
-        const res = await fetch(`/api/where-by/join-meeting/${roomName}`, {
-          method: "POST",
-        });
+        const res = await fetch(
+          `/api/where-by/join-meeting?meetingId=${roomName}`,
+          {
+            method: "POST",
+          }
+        );
         const data = await res.json();
         if (res.status === 200) {
           toast("Meeting has been joined!");

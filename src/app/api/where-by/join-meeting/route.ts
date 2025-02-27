@@ -11,13 +11,16 @@ interface User {
   imageUrl: string;
 }
 
-export async function POST({ params }: { params: { meetingId: string } }) {
+export async function POST(req: NextRequest) {
   try {
     const user = (await currentUser()) as User | null;
-    const { meetingId } = await params;
+    const meetingId = req.nextUrl.href
+      .split("/")[5]
+      .replace("join-meeting?meetingId=", "");
+    console.log(meetingId);
     const currentTime = new Date();
 
-    if (!user) {
+    if (!user || !meetingId) {
       return NextResponse.json(
         { error: "Unauthorized access" },
         { status: 401 }
