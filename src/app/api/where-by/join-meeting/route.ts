@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PreviousMeeting } from "@/schemas/previous-meetings";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -14,11 +13,8 @@ interface User {
 export async function POST(req: NextRequest) {
   try {
     const user = (await currentUser()) as User | null;
-    const meetingId = req.nextUrl.href
-      .split("/")[5]
-      .replace("join-meeting?meetingId=", "");
-    console.log(meetingId);
-    const currentTime = new Date();
+    const url = new URL(req.nextUrl.href);
+    const meetingId = url.searchParams.get("meetingId");
 
     if (!user || !meetingId) {
       return NextResponse.json(
@@ -29,53 +25,27 @@ export async function POST(req: NextRequest) {
 
     const { id, emailAddresses, firstName, lastName, imageUrl } = user;
     const email = emailAddresses[0]?.emailAddress;
+    const userDetails = { id, email, firstName, lastName, imageUrl };
 
-    const userDetails = {
-      id,
-      email,
-      firstName,
-      lastName,
-      imageUrl,
-    };
-
-    const UpdateMeetingByRoomName = await PreviousMeeting.findOne({
+    // ✅ Check if the user is already in the meeting using $elemMatch
+    const isUserAlreadyJoined = await PreviousMeeting.findOne({
       roomName: `/${meetingId}`,
+      participants: { $elemMatch: { id } },
     });
 
-    if (!UpdateMeetingByRoomName) {
-      return NextResponse.json(
-        { success: false, message: "Meeting not found" },
-        { status: 404 }
-      );
-    }
-
-    const meetingEndDate = new Date(UpdateMeetingByRoomName.endDate);
-    const now = new Date(currentTime);
-
-    if (meetingEndDate < now) {
-      return NextResponse.json(
-        { success: false, message: "Meeting has ended" },
-        { status: 400 }
-      );
-    }
-
-    if (
-      UpdateMeetingByRoomName.participants.find(
-        (participant: User) => participant.id === id
-      )
-    ) {
+    if (isUserAlreadyJoined) {
       return NextResponse.json(
         { success: false, message: "User already joined the meeting" },
         { status: 400 }
       );
     }
 
-    // ✅ Use $push to append the new user to participants
+    // ✅ Update meeting and return the updated document in a single query
     const UpdateMeetingDetailsByRoomName =
       await PreviousMeeting.findOneAndUpdate(
         { roomName: `/${meetingId}` },
-        { $push: { participants: userDetails } }, // ✅ Fix: Append instead of replace
-        { new: true } // ✅ Returns updated document
+        { $push: { participants: userDetails } },
+        { new: true, maxTimeMS: 3000 } // ✅ Prevents long execution times
       );
 
     if (!UpdateMeetingDetailsByRoomName) {
