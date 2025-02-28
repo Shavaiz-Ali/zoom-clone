@@ -1,11 +1,11 @@
 "use server";
 
 import { connectToDatabase } from "@/lib/db";
-import { PreviousMeeting } from "@/schemas/previous-meetings";
+import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export const getPreviousMeetings = async () => {
+export const getPeronalRooms = async () => {
   try {
     const user = await currentUser();
     if (!user) {
@@ -19,25 +19,18 @@ export const getPreviousMeetings = async () => {
     const userId = user.id;
 
     await connectToDatabase();
-    const previousMeetings = await PreviousMeeting.find({
-      $or: [
-        { hostId: userId }, // Check if user is the host
-        { "participants.id": user.id }, // Check if user is a participant
-      ],
+    const personalRoom = await PersonalRoom.find({
+      userId,
     });
 
-    if (!previousMeetings) {
+    if (!personalRoom) {
       return NextResponse.json(
         { success: false, message: "No personal rooms created yet!" },
         { status: 404 }
       );
     }
 
-    return JSON.stringify({
-      success: true,
-      data: previousMeetings,
-      status: 200,
-    });
+    return JSON.stringify({ success: true, data: personalRoom, status: 200 });
   } catch (error) {
     console.log(error);
     return JSON.stringify({

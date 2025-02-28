@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Copy } from "lucide-react";
+import { Copy, Eye, EyeClosed, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,7 @@ import { useCreateMeeting } from "@/hooks/useCreateMeeting";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface MeetingCardModelProps {
   model: boolean;
@@ -43,7 +44,10 @@ const MeetingCardModel = ({
     time: "",
     meetingLink: "",
     meetingTitle: "",
+    roomTitle: "",
+    passcode: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const { createMeeting, loader, setLoader } = useCreateMeeting();
   const router = useRouter();
 
@@ -89,6 +93,34 @@ const MeetingCardModel = ({
         toast("An error occurred while creating the meeting");
       }
     }
+
+    if (type === MeetingOptionModelType.PERSONALROOM) {
+      const { roomTitle, passcode } = values;
+      const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+      if (!BASE_URL) return;
+      if (roomTitle.trim() === "" || passcode.trim() === "") {
+        toast("All fields are required!");
+      }
+
+      const inviteLink = `${BASE_URL}`;
+      const meetingId = Math.floor(10000000 + Math.random() * 90000000);
+
+      try {
+        setLoader(true);
+        const response = await axios.post(
+          "/api/where-by/create-personal-room",
+          {
+            body: { roomTitle, passcode, inviteLink, meetingId },
+          }
+        );
+
+        setLoader(false);
+        console.log(response);
+      } catch (error) {
+        setLoader(false);
+        console.log(error);
+      }
+    }
   };
 
   return (
@@ -99,7 +131,8 @@ const MeetingCardModel = ({
             className={cn("text-[30px] font-bold leading-10 text-white", {
               "text-center":
                 type === MeetingOptionModelType.JOINMEETING ||
-                type === MeetingOptionModelType.NEWMEETING,
+                type === MeetingOptionModelType.NEWMEETING ||
+                type === MeetingOptionModelType.PERSONALROOM,
             })}
           >
             {title}
@@ -107,7 +140,8 @@ const MeetingCardModel = ({
         </DialogHeader>
         <div className="w-full">
           {(type === MeetingOptionModelType.JOINMEETING ||
-            type === MeetingOptionModelType.NEWMEETING) && (
+            type === MeetingOptionModelType.NEWMEETING ||
+            type === MeetingOptionModelType.PERSONALROOM) && (
             <Input
               type="text"
               name="link"
@@ -115,22 +149,49 @@ const MeetingCardModel = ({
               placeholder={
                 type === MeetingOptionModelType.JOINMEETING
                   ? "Meeting link"
-                  : "Meeting Title"
+                  : type === MeetingOptionModelType.NEWMEETING
+                  ? "Meeting Title"
+                  : "Room title"
               }
               value={
                 type === MeetingOptionModelType.JOINMEETING
                   ? values.meetingLink
-                  : values.meetingTitle
+                  : type === MeetingOptionModelType.NEWMEETING
+                  ? values.meetingTitle
+                  : values.roomTitle
               }
               onChange={(e) => {
                 if (type === MeetingOptionModelType.JOINMEETING) {
                   setValues({ ...values, meetingLink: e.target.value });
-                } else {
+                } else if (type === MeetingOptionModelType.NEWMEETING) {
                   setValues({ ...values, meetingTitle: e.target.value });
+                } else {
+                  setValues({ ...values, roomTitle: e.target.value });
                 }
               }}
             />
           )}
+          {type === MeetingOptionModelType.PERSONALROOM && (
+            <div className="relative mt-3 w-full ">
+              <Input
+                type={showPassword ? "text" : "password"}
+                name="link"
+                className="py-[10px] px-3 w-full border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium placeholder:text-slate-500"
+                placeholder={"Add a password"}
+                value={values.passcode}
+                onChange={(e) =>
+                  setValues({ ...values, passcode: e.target.value })
+                }
+              />
+              <button
+                className="absolute top-1/2 -translate-y-1/2 left-[92%] w-full"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {!showPassword ? <Eye /> : <EyeOff />}
+              </button>
+            </div>
+          )}
+
           {type === MeetingOptionModelType.SCHEDULEMEETING && (
             <div className="space-y-3">
               <div className="space-y-2">

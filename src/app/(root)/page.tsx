@@ -23,9 +23,16 @@ export default async function Home() {
               Previous Meetings
             </h1>
             <div className="grid grid-cols-1 xl:grid-cols-3 sm:grid-cols-2 gap-6 w-full">
-              {data?.data?.map((item: any) => (
-                <PreviousMeetingsCard item={item} key={item.id} />
-              ))}
+              {data?.data
+                ?.sort(
+                  (a: any, b: any) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .slice(0, 3)
+                .map((item: any) => (
+                  <PreviousMeetingsCard item={item} key={item.id} />
+                ))}
             </div>
           </div>
         ) : (

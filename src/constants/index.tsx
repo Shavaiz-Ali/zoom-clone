@@ -54,6 +54,7 @@ export const enum MeetingOptionModelType {
   NEWMEETING = "newMeeting",
   JOINMEETING = "joinMeeting",
   SCHEDULEMEETING = "scheduleMeeting",
+  PERSONALROOM = "personalRoom",
 }
 
 export const meetingOptions: MeetingOption[] = [
