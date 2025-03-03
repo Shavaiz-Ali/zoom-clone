@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="px-5 py-4 bg-dark-1 w-[264px] min-h-screen hidden lg:block overflow-hidden">
+      <div className="px-5 py-4 bg-dark-1 w-[264px] min-h-screen hidden lg:block overflow-hidden shrink-0">
         <div className="px-2">
           <Image src="/logo.png" width={124} height={40} alt="logo" />
         </div>

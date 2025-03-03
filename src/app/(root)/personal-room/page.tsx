@@ -1,37 +1,50 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getPeronalRooms } from "@/actions/personal-room";
+import { getPersonalRooms } from "@/actions/personal-room";
 import PasswordInput from "@/components/shared/password-input";
+import PersonalRoomActionsButton from "@/components/shared/personal-room-action-buttons";
 import PersonalRoomModel from "@/components/shared/personal-room-model";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
+interface PersonalRoom {
+  _id: string;
+  roomTitle: string;
+  meetingId: string;
+  passcode: string;
+  inviteLink: string;
+  createdAt: string;
+}
+
 const PersonalRoom = async () => {
-  const personalRoomData: any = await getPeronalRooms();
-  const data = JSON.parse(personalRoomData);
-  console.log(data);
+  const personalRoomData: any = await getPersonalRooms();
+  const data: { data: PersonalRoom[] } = JSON.parse(personalRoomData);
+
   return (
     <div className="space-y-12 shrink">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[30px] sm:text-[42px] font-bold leading-10 text-white">
+      <div className="flex items-start justify-between space-x-4">
+        <h1 className="text-[24px] md:text-[30px] lg:text-[42px] font-bold leading-10 text-white">
           Personal Meeting Room
         </h1>
         <PersonalRoomModel />
       </div>
-      {data && data?.data && data?.data?.length > 0 ? (
+      {data?.data && data?.data.length > 0 ? (
         <div className="w-full">
-          {data?.data
-            ?.sort(
-              (a: any, b: any) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+          {data.data
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).valueOf() -
+                new Date(a.createdAt).valueOf()
             )
-            .map((item: any, index: any) => (
-              <div className=" space-y-12 " key={item._id}>
+            .map((item, index) => (
+              <div
+                className={cn("space-y-12", index !== 0 && "pt-11")}
+                key={item._id}
+              >
                 <div className="flex justify-start items-center space-x-20">
                   <div className="space-y-8 ">
                     {["Topic", "Meeting ID", "Passcode", "Invite Link"].map(
-                      (value, index) => (
-                        <div className="w-[110px]" key={index}>
+                      (value, idx) => (
+                        <div className="w-[110px]" key={idx}>
                           <p className="text-[20px] font-medium leading-7 text-sky-1 flex items-center">
                             {value}
                             <span className="text-[24px]">:</span>
@@ -46,27 +59,35 @@ const PersonalRoom = async () => {
                       item.meetingId,
                       item.passcode,
                       item.inviteLink,
-                    ].map((value, index) => (
-                      <>
-                        {index === 2 ? (
+                    ].map((value, idx) => (
+                      <div key={idx}>
+                        {idx === 2 ? (
                           <PasswordInput passcode={item.passcode} />
                         ) : (
-                          <p
-                            className={cn(
-                              "text-[20px] font-bold leading-7 text-white",
-                              {
-                                "text-blue-1 w-[60%] line-clamp-1": index === 3,
-                              }
-                            )}
-                          >
-                            {value}
-                          </p>
+                          <div className="w-s">
+                            <p
+                              className={cn(
+                                "text-[20px] font-bold leading-7 text-white",
+                                {
+                                  "text-blue-1 w-[60%] line-clamp-1": idx === 3,
+                                }
+                              )}
+                            >
+                              {value}
+                            </p>
+                          </div>
                         )}
-                      </>
+                      </div>
                     ))}
                   </div>
                 </div>
-                {!index !== data?.data.length && (
+                <PersonalRoomActionsButton
+                  inviteLink={item.inviteLink}
+                  roomId={item._id}
+                  passcode={item.passcode}
+                  title={item.roomTitle}
+                />
+                {index !== data.data.length - 1 && (
                   <Separator className="h-1 bg-dark-1 w-full" />
                 )}
               </div>

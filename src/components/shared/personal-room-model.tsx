@@ -17,7 +17,7 @@ const PersonalRoomModel = () => {
         <span>
           <Image src={"/nav/5.svg"} alt="plus" width={17} height={17} />
         </span>
-        <span className="text-[16px] font-semibold leading-5 text-white">
+        <span className="sm:block hidden text-[16px] font-semibold leading-5 text-white">
           Create a new room
         </span>
       </Button>

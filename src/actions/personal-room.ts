@@ -5,7 +5,7 @@ import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export const getPeronalRooms = async () => {
+export const getPersonalRooms = async () => {
   try {
     const user = await currentUser();
     if (!user) {
