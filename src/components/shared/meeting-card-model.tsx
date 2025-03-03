@@ -84,6 +84,7 @@ const MeetingCardModel = ({
           return;
         }
         const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+        console.log(BASE_URL);
         if (!BASE_URL) return;
         const inviteLink = `${BASE_URL}`;
         const meetingId = Math.floor(10000000 + Math.random() * 90000000);
