@@ -51,58 +51,83 @@ const MeetingCardModel = ({
   // API call handler
   const handleActions = async () => {
     try {
-      setLoader(true);
+      setLoader(true); // Set loading state to true
 
-      if (type === MeetingOptionModelType.NEWMEETING) {
-        if (!values.meetingTitle.trim()) {
-          toast("Meeting title is required");
-          return;
-        }
-        const res = await createMeeting(values.meetingTitle);
-        if (res.status === 201) {
-          toast("Meeting has been created!");
-          setModel(false);
-          router.push(`/meeting/${res.data.roomName.replace("/", "")}`);
-        }
-      } else if (type === MeetingOptionModelType.JOINMEETING) {
-        const roomName = values.meetingLink.split("/")[4];
-        if (!values.meetingLink || !roomName) {
-          toast("Please enter a valid meeting link");
-          return;
-        }
-        const { status } = await axios.post(
-          `/api/where-by/join-meeting?meetingId=${roomName}`
-        );
-        if (status === 200) {
-          toast("Meeting has been joined!");
-          setModel(false);
-          router.push(`/meeting/${roomName}`);
-        }
-      } else if (type === MeetingOptionModelType.PERSONALROOM) {
-        if (!values.roomTitle.trim() || !values.passcode.trim()) {
-          toast("All fields are required!");
-          return;
-        }
-        const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-        console.log(BASE_URL);
-        if (!BASE_URL) return;
-        const inviteLink = `${BASE_URL}`;
-        const meetingId = Math.floor(10000000 + Math.random() * 90000000);
-        await axios.post("/api/where-by/create-personal-room", {
-          pathToRevalidate: path,
-          roomTitle: values.roomTitle,
-          passcode: values.passcode,
-          inviteLink,
-          meetingId,
-        });
-        toast("Personal room created successfully");
-        setModel(false);
+      switch (type) {
+        // Case for creating a new meeting
+        case MeetingOptionModelType.NEWMEETING:
+          if (!values.meetingTitle.trim()) {
+            toast("Meeting title is required"); // Show error if title is empty
+            return;
+          }
+
+          const newMeetingRes = await createMeeting(values.meetingTitle);
+          if (newMeetingRes.status === 201) {
+            toast("Meeting has been created!");
+            setModel(false); // Close modal after success
+            router.push(
+              `/meeting/${newMeetingRes.data.roomName.replace("/", "")}`
+            ); // Redirect to meeting
+          }
+          break;
+
+        // Case for joining an existing meeting
+        case MeetingOptionModelType.JOINMEETING:
+          const roomName = values.meetingLink.split("/")[4]; // Extract room ID from link
+          if (!values.meetingLink || !roomName) {
+            toast("Please enter a valid meeting link");
+            return;
+          }
+
+          // Send request to join the meeting
+          const { status: joinStatus } = await axios.post(
+            `/api/where-by/join-meeting?meetingId=${roomName}`
+          );
+
+          if (joinStatus === 200) {
+            toast("Meeting has been joined!");
+            setModel(false);
+            router.push(`/meeting/${roomName}`); // Redirect to meeting
+          }
+          break;
+
+        // Case for creating a personal meeting room
+        case MeetingOptionModelType.PERSONALROOM:
+          if (!values.roomTitle.trim() || !values.passcode.trim()) {
+            toast("All fields are required!"); // Validate input fields
+            return;
+          }
+
+          const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+          if (!BASE_URL) return; // Ensure base URL is available
+
+          // Generate unique meeting ID
+          const inviteLink = `${BASE_URL}`;
+          const meetingId = Math.floor(10000000 + Math.random() * 90000000);
+
+          // Send request to create a personal meeting room
+          await axios.post("/api/where-by/create-personal-room", {
+            pathToRevalidate: path,
+            roomTitle: values.roomTitle,
+            passcode: values.passcode,
+            inviteLink,
+            meetingId,
+          });
+
+          toast("Personal room created successfully");
+          setModel(false); // Close modal after success
+          break;
+
+        // Default case to handle unexpected meeting types
+        default:
+          toast("Invalid action type");
+          break;
       }
     } catch (error) {
       console.error("Meeting Action Error:", error);
-      toast("An error occurred while processing your request");
+      toast("Something went wrong! Try again later");
     } finally {
-      setLoader(false);
+      setLoader(false); // Reset loading state
     }
   };
 

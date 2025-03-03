@@ -85,6 +85,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
         }
       }
     } catch (error) {
+      toast("something went wrong! try again later");
       setLoader(false);
       console.log(error);
     }
