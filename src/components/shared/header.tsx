@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
-import React from "react";
+
+import SidebarMobile from "./sidebar-mobile";
 
 const Header = () => {
   return (
@@ -9,13 +10,14 @@ const Header = () => {
       <div className="px-2 lg:hidden block">
         <Image src="/logo.png" width={124} height={40} alt="logo" />
       </div>
-      <div className="s">
+      <div className="flex justify-center items-center space-x-3">
         <SignedIn>
           <UserButton />
         </SignedIn>
         <SignedOut>
           <SignInButton />
         </SignedOut>
+        <SidebarMobile />
       </div>
     </div>
   );
