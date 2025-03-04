@@ -31,7 +31,7 @@ const MeetingOptionsCard = ({
     <>
       <Card
         className={cn(
-          "px-6 py-5 !h-[320px] !border-none cursor-pointer",
+          "px-6 py-5 h-[280px] !border-none cursor-pointer",
           option.color
         )}
         onClick={() => {
