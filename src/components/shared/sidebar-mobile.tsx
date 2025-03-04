@@ -45,7 +45,11 @@ const SidebarMobile = () => {
         <SheetTrigger asChild>
           <Button className="p-0 border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 ">
             <span>
-              <Menu size={30} className="text-white" />
+              <Menu
+                width={50}
+                height={100}
+                className="!w-[1rem] !h-[2rem] text-white"
+              />
             </span>
           </Button>
         </SheetTrigger>
