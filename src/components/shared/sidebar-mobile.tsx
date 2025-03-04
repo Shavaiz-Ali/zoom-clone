@@ -43,7 +43,7 @@ const SidebarMobile = () => {
     <div className="lg:hidden block">
       <Sheet open={sidebar} onOpenChange={setSidebar}>
         <SheetTrigger asChild>
-          <Button className="p-0 border-0 outline-none ">
+          <Button className="p-0 border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 ">
             <span>
               <Menu size={30} className="text-white" />
             </span>
