@@ -133,7 +133,7 @@ const MeetingCardModel = ({
 
   return (
     <Dialog open={model} onOpenChange={setModel}>
-      <DialogContent className="flex w-full max-w-[520px] flex-col gap-6 border-none bg-dark-2 px-6 py-9 text-white">
+      <DialogContent className="flex w-[95%] max-w-[520px] flex-col gap-6 border-none bg-dark-2 px-6 py-9 text-white">
         <DialogHeader className="p-0">
           <DialogTitle
             className={cn("text-[30px] font-bold leading-10 text-white", {
