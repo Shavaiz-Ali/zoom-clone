@@ -19,6 +19,7 @@ body {
 
 /* Custom scrollbar styles */
 ::-webkit-scrollbar {
+  position: fixed;
   width: 12px;
   height: 12px;
 }

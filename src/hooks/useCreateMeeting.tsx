@@ -7,10 +7,18 @@ export const useCreateMeeting = () => {
   const [loader, setLoader] = useState(false);
   const [message, setMessage] = useState("");
 
-  const createMeeting = async (meetingTitle: string) => {
+  const createMeeting = async (
+    meetingTitle: string,
+    personal?: boolean,
+    passcode?: string,
+    roomId?: string
+  ) => {
     try {
       setLoader(true);
-      const res = await axios.post("/api/where-by/create-room", {
+      const url = personal
+        ? `/api/where-by/create-room?personal=${personal}&passcode=${passcode}&roomId=${roomId}`
+        : "/api/where-by/create-room";
+      const res = await axios.post(url, {
         title: meetingTitle,
       });
       return res.data;

@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getPreviousMeetings } from "@/actions/previous-meetings";
-import PreviousMeetingsCard from "@/components/shared/previous-meeting-card";
+import dynamic from "next/dynamic";
+const PreviousMeetingsCard = dynamic(
+  () => import("@/components/shared/previous-meeting-card"),
+  {
+    loading: () => (
+      <div className="h-6 w-6 rounded-full border-2 border-t-white border-dark-1  animate-spin" />
+    ),
+  }
+);
 import React from "react";
 
 const PreviousMeetings = async () => {

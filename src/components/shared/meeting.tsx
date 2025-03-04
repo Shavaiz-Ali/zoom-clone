@@ -1,11 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import ConfirmPasswordModel from "./confirm-password";
 
-export default function WherebyMeeting({ meetingId }: { meetingId: string }) {
+export default function WherebyMeeting({
+  meetingId,
+  personal,
+}: {
+  meetingId: string;
+  personal: boolean;
+}) {
   const meetingUrl = `https://yoom.whereby.com/${meetingId}`;
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [model, setModel] = useState(personal);
 
   const router = useRouter();
 
@@ -26,8 +34,15 @@ export default function WherebyMeeting({ meetingId }: { meetingId: string }) {
     };
   }, [router]);
 
+  useEffect(() => {
+    if (personal) {
+      setModel(true);
+    }
+  }, [model, setModel, personal]);
+
   return (
     <div className="h-full">
+      {personal && <ConfirmPasswordModel model={model} setModel={setModel} />}
       {meetingUrl && (
         <div className="h-full">
           {/* <h3 className="text-lg font-bold">Join Meeting:</h3>

@@ -24,7 +24,7 @@ export const getPreviousMeetings = async () => {
         { hostId: userId }, // Check if user is the host
         { "participants.id": user.id }, // Check if user is a participant
       ],
-    });
+    }).sort({ createdAt: -1 });
 
     if (!previousMeetings) {
       return NextResponse.json(

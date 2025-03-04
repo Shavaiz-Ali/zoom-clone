@@ -21,7 +21,7 @@ export const getPersonalRooms = async () => {
     await connectToDatabase();
     const personalRoom = await PersonalRoom.find({
       userId,
-    });
+    }).sort({ createdAt: -1 });
 
     if (!personalRoom) {
       return NextResponse.json(

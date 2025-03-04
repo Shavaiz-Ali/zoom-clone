@@ -5,9 +5,10 @@ import React, { RefAttributes, useState } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import ActionConfirmModel from "./confirm-model";
+import { useCreateMeeting } from "@/hooks/useCreateMeeting";
 
 export const enum pRoomActions {
   START_MEETING = "start",
@@ -38,8 +39,12 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
   title,
 }) => {
   const [model, setModel] = useState<boolean>(false);
-  const [selectedAction, setSelectedAction] = useState<string | null>(null); // Stores the clicked action type
-  const [loader, setLoader] = useState<boolean>(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [loadingActions, setLoadingActions] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const { createMeeting } = useCreateMeeting();
+  const router = useRouter();
   const path = usePathname();
 
   const buttonsData: buttonsDataTypes[] = [
@@ -68,26 +73,36 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
   const handleActions = async (action: string) => {
     if (!action) return;
 
+    setLoadingActions((prev) => ({ ...prev, [action]: true }));
+
     try {
       if (action === pRoomActions.COPY) {
         await navigator.clipboard.writeText(inviteLink);
         toast("Link copied successfully!");
       } else if (action === pRoomActions.DELETE) {
-        setLoader(true);
         const res = await axios.delete("/api/where-by/delete-personal-room", {
           data: { roomId, path },
         });
-        console.log(res);
         if (res.status === 200) {
-          setLoader(false);
-          setModel(false);
           toast("Room Deleted Successfully");
+          setModel(false);
+        }
+      } else if (action === pRoomActions.START_MEETING) {
+        const personal = true;
+        const response = await createMeeting(title, personal, passcode, roomId);
+        if (response.status === 201) {
+          toast("Meeting has been created!");
+          setModel(false);
+          router.push(
+            `/meeting/${response.data.roomName.replace("/", "")}?personal=true`
+          );
         }
       }
     } catch (error) {
-      toast("something went wrong! try again later");
-      setLoader(false);
-      console.log(error);
+      toast("Something went wrong! Try again later.");
+      console.error(error);
+    } finally {
+      setLoadingActions((prev) => ({ ...prev, [action]: false }));
     }
   };
 
@@ -117,11 +132,14 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
                 setModel(true);
                 return;
               }
-
               handleActions(value.action);
             }}
+            disabled={loadingActions[value.action]} // Disable button while loading
           >
-            {value.icon && (
+            {loadingActions[value.action] && (
+              <div className="h-6 w-6 rounded-full border-2 border-t-white border-dark-1 animate-spin" />
+            )}
+            {value.icon && !loadingActions[value.action] && (
               <span>
                 <value.icon size={12} />
               </span>
@@ -136,7 +154,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
           model={model}
           setModel={setModel}
           type={selectedAction}
-          loader={loader}
+          loader={loadingActions[selectedAction]}
           handleActions={handleActions}
           passcode={passcode}
           title={title}

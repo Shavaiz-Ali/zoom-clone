@@ -30,11 +30,11 @@ const PersonalRoom = async () => {
       {data?.data && data?.data.length > 0 ? (
         <div className="w-full">
           {data.data
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).valueOf() -
-                new Date(a.createdAt).valueOf()
-            )
+            // .sort(
+            //   (a, b) =>
+            //     new Date(b.createdAt).valueOf() -
+            //     new Date(a.createdAt).valueOf()
+            // )
             .map((item, index) => (
               <div
                 className={cn("space-y-12", index !== 0 && "pt-11")}

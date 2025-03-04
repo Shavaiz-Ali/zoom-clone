@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -35,22 +35,22 @@ export async function POST(req: NextRequest) {
     }
 
     // hashing password
-    const salt = 10;
-    const hashPassword = await bcrypt.hash(passcode, salt);
+    // const salt = 10;
+    // const hashPassword = await bcrypt.hash(passcode, salt);
 
-    if (!hashPassword) {
-      return NextResponse.json(
-        { success: false, message: "Unable to hash password" },
-        { status: 400 }
-      );
-    }
+    // if (!hashPassword) {
+    //   return NextResponse.json(
+    //     { success: false, message: "Unable to hash password" },
+    //     { status: 400 }
+    //   );
+    // }
 
     // updating invite link and creating room
-    const updatedInviteLink = `${inviteLink}?pwd=${hashPassword}`;
+    const updatedInviteLink = `${inviteLink}?pwd=${passcode}`;
 
     const pRoom = await PersonalRoom.create({
       ...body,
-      passcode: hashPassword,
+      passcode,
       inviteLink: updatedInviteLink,
       userId: userId,
     });

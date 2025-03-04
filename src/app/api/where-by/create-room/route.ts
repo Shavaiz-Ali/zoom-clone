@@ -1,6 +1,8 @@
 import { connectToDatabase } from "@/lib/db";
+import { PersonalRoom } from "@/schemas/personal-room";
 import { PreviousMeeting } from "@/schemas/previous-meetings";
 import { currentUser } from "@clerk/nextjs/server";
+// import bcrypt from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
 
 interface User {
@@ -17,10 +19,54 @@ interface RequestBody {
   endDate: string;
 }
 
+const checkPassword = async (
+  passcode: string | null,
+  roomId: string | null
+) => {
+  if (!passcode || !roomId) {
+    return NextResponse.json(
+      { success: false, message: "Passcode and Room ID are required" },
+      { status: 400 }
+    );
+  }
+
+  const room = await PersonalRoom.findById({ _id: roomId });
+  console.log(room);
+  if (!room) {
+    return NextResponse.json(
+      { success: false, message: "Room not found" },
+      { status: 400 }
+    );
+  }
+
+  console.log(passcode === room.passcode);
+
+  // const correctPassword = await bcrypt.compare(passcode, room.passcode);
+  // console.log(correctPassword);
+  if (passcode !== room.passcode) {
+    return NextResponse.json(
+      { success: false, message: "Password incorrect" },
+      { status: 400 }
+    );
+  }
+
+  return true;
+};
+
 export async function POST(req: NextRequest) {
   try {
+    await connectToDatabase();
+
     const body = await req.json();
+    const personal = req.nextUrl.searchParams.get("personal");
+    const passcode = req.nextUrl.searchParams.get("passcode");
+    const roomId = req.nextUrl.searchParams.get("roomId");
     const { title } = body;
+
+    if (personal) {
+      const isValid = await checkPassword(passcode, roomId);
+      if (isValid !== true) return isValid;
+    }
 
     const apiKey = process.env.WHEREBY_API_KEY;
     if (!apiKey) {
@@ -41,13 +87,7 @@ export async function POST(req: NextRequest) {
     const { id, emailAddresses, firstName, lastName, imageUrl } = user;
     const email = emailAddresses[0]?.emailAddress;
 
-    const userDetails = {
-      id,
-      email,
-      firstName,
-      lastName,
-      imageUrl,
-    };
+    const userDetails = { id, email, firstName, lastName, imageUrl };
 
     const requestBody: RequestBody = {
       isLocked: false,
@@ -67,16 +107,13 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
-        { error: errorData.message },
+        { error: errorData.message || "Unknown API error" },
         { status: response.status }
       );
     }
 
     const data = await response.json();
 
-    await connectToDatabase();
-
-    // ✅ Ensure `participants` is an **array of objects**
     const meetingData = {
       meetingId: data.meetingId,
       roomName: data.roomName,
@@ -85,7 +122,7 @@ export async function POST(req: NextRequest) {
       ownerId: id,
       startDate: data.startDate,
       endDate: data.endDate,
-      participants: [userDetails], // ✅ Correctly passing as an array of objects
+      participants: [userDetails],
     };
 
     const createMeeting = new PreviousMeeting(meetingData);

@@ -44,8 +44,8 @@ const ActionConfirmModel: React.FC<ActionConfirmModelProps> = ({
             )}
           >
             {type === pRoomActions.DELETE
-              ? "Are you sure you want to delete file?"
-              : "Edit file"}
+              ? "Are you sure you want to delete room?"
+              : "Edit room"}
           </DialogTitle>
         </DialogHeader>
         {type === pRoomActions.Edit && (

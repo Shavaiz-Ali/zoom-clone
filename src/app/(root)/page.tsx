@@ -24,11 +24,11 @@ export default async function Home() {
             </h1>
             <div className="grid grid-cols-1 xl:grid-cols-3 sm:grid-cols-2 gap-6 w-full">
               {data?.data
-                ?.sort(
-                  (a: any, b: any) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
+                // ?.sort(
+                //   (a: any, b: any) =>
+                //     new Date(b.createdAt).getTime() -
+                //     new Date(a.createdAt).getTime()
+                // )
                 .slice(0, 3)
                 .map((item: any) => (
                   <PreviousMeetingsCard item={item} key={item.id} />
