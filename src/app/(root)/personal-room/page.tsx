@@ -64,12 +64,13 @@ const PersonalRoom = async () => {
                         {idx === 2 ? (
                           <PasswordInput passcode={item.passcode} />
                         ) : (
-                          <div className="w-s">
+                          <div className="w-full">
                             <p
                               className={cn(
                                 "text-[20px] font-bold leading-7 text-white",
                                 {
-                                  "text-blue-1 w-[60%] line-clamp-1": idx === 3,
+                                  "text-blue-1 w-[500px] line-clamp-1":
+                                    idx === 3,
                                 }
                               )}
                             >
@@ -81,12 +82,7 @@ const PersonalRoom = async () => {
                     ))}
                   </div>
                 </div>
-                <PersonalRoomActionsButton
-                  inviteLink={item.inviteLink}
-                  roomId={item._id}
-                  passcode={item.passcode}
-                  title={item.roomTitle}
-                />
+                <PersonalRoomActionsButton item={item} />
                 {index !== data.data.length - 1 && (
                   <Separator className="h-1 bg-dark-1 w-full" />
                 )}

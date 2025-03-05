@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import ActionConfirmModel from "./confirm-model";
-import { useCreateMeeting } from "@/hooks/useCreateMeeting";
 
 export const enum pRoomActions {
   START_MEETING = "start",
@@ -25,25 +24,25 @@ interface buttonsDataTypes {
   action: string;
 }
 
-interface PersonalRoomActionsButtonProps {
+interface PersonalRoom {
   inviteLink: string;
-  roomId: string;
-  passcode: string;
-  title: string;
+  roomTitle: string;
+  _id: string;
+}
+
+interface PersonalRoomActionsButtonProps {
+  item: PersonalRoom;
 }
 
 const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
-  inviteLink,
-  roomId,
-  passcode,
-  title,
+  item,
 }) => {
+  const { roomTitle, _id, inviteLink } = item;
   const [model, setModel] = useState<boolean>(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [loadingActions, setLoadingActions] = useState<{
     [key: string]: boolean;
   }>({});
-  const { createMeeting } = useCreateMeeting();
   const router = useRouter();
   const path = usePathname();
 
@@ -81,22 +80,21 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
         toast("Link copied successfully!");
       } else if (action === pRoomActions.DELETE) {
         const res = await axios.delete("/api/where-by/delete-personal-room", {
-          data: { roomId, path },
+          data: { roomId: _id, path },
         });
         if (res.status === 200) {
+          router.refresh();
           toast("Room Deleted Successfully");
           setModel(false);
         }
       } else if (action === pRoomActions.START_MEETING) {
-        const personal = true;
-        const response = await createMeeting(title, personal, passcode, roomId);
-        if (response.status === 201) {
-          toast("Meeting has been created!");
-          setModel(false);
-          router.push(
-            `/meeting/${response.data.roomName.replace("/", "")}?personal=true`
-          );
-        }
+        setLoadingActions((prev) => ({ ...prev, [action]: true }));
+        await new Promise<void>((resolve) => {
+          setTimeout(() => {
+            router.push(inviteLink);
+          }, 2000);
+          resolve();
+        });
       }
     } catch (error) {
       toast("Something went wrong! Try again later.");
@@ -156,8 +154,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
           type={selectedAction}
           loader={loadingActions[selectedAction]}
           handleActions={handleActions}
-          passcode={passcode}
-          title={title}
+          title={roomTitle}
         />
       )}
     </>

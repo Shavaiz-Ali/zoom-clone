@@ -1,3 +1,4 @@
+import { VerifyPersonalRooms } from "@/actions/verify-personal-room";
 import WherebyMeeting from "@/components/shared/meeting";
 import React from "react";
 
@@ -6,15 +7,17 @@ const Meeting = async ({
   searchParams,
 }: {
   params: Promise<{ meetingId: string }>;
-  searchParams: Promise<{ personal: boolean }>;
+  searchParams: Promise<{ token: string }>;
 }) => {
-  const { personal } = await searchParams;
-  console.log(personal);
+  const { token } = await searchParams;
   const { meetingId } = await params;
-  console.log(meetingId);
+
+  const response = await VerifyPersonalRooms(meetingId);
+  const data = JSON.parse(response);
+
   return (
     <div className="w-full">
-      <WherebyMeeting meetingId={meetingId} personal={personal} />
+      <WherebyMeeting data={data} meetingId={meetingId} token={token} />
     </div>
   );
 };

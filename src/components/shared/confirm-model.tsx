@@ -14,7 +14,6 @@ interface ActionConfirmModelProps {
   loader: boolean;
   handleActions: (value: string) => void;
   title: string;
-  passcode: string;
 }
 
 const ActionConfirmModel: React.FC<ActionConfirmModelProps> = ({
@@ -23,7 +22,6 @@ const ActionConfirmModel: React.FC<ActionConfirmModelProps> = ({
   type,
   loader,
   handleActions,
-  passcode,
   title,
 }) => {
   console.log(type === pRoomActions.Edit);

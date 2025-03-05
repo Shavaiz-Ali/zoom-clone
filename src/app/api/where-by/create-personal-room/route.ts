@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { createRoomViaWhereBy } from "@/utils/where-by";
+
+const JWT_SECRET = process.env.JWT_SECRET!; // Ensure this is set in your environment variables
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,28 +23,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // validation
+    // Validation
     if ([roomTitle, passcode, inviteLink].some((a: any) => a === "" || !a)) {
       return NextResponse.json(
-        { success: false, message: "some fields are missing!" },
+        { success: false, message: "Some fields are missing!" },
         { status: 400 }
       );
     }
 
-    // hashing password
-    // const salt = 10;
-    // const hashPassword = await bcrypt.hash(passcode, salt);
-
-    // if (!hashPassword) {
-    //   return NextResponse.json(
-    //     { success: false, message: "Unable to hash password" },
-    //     { status: 400 }
-    //   );
-    // }
-
     const response = await createRoomViaWhereBy();
 
-    // Check if response is a string and handle it
     if (typeof response === "string") {
       return NextResponse.json(
         { error: response || "Unknown API error" },
@@ -61,13 +50,17 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
 
-    // updating invite link and creating room
-    const updatedInviteLink = `${inviteLink}${data.roomName}?pwd=${passcode}`;
+    // Generate JWT token for authentication instead of exposing passcode
+    const token = jwt.sign({ roomId: data.roomName, passcode }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const updatedInviteLink = `${inviteLink}${data.roomName}?token=${token}`;
 
     const pRoom = await PersonalRoom.create({
       ...body,
       meetingId: data?.meetingId,
-      passcode,
+      passcode, // Store in DB but not expose it in URL
       inviteLink: updatedInviteLink,
       userId: userId,
     });

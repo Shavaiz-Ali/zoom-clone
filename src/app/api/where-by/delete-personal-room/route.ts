@@ -1,3 +1,6 @@
+"use server";
+
+import { connectToDatabase } from "@/lib/db";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -7,7 +10,6 @@ export async function DELETE(req: NextRequest) {
   try {
     const user = await currentUser();
     const body = await req.json();
-    console.log(body);
 
     const { roomId, path } = body;
 
@@ -25,6 +27,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
+    connectToDatabase();
     const fileExists = await PersonalRoom.find({ _id: roomId });
 
     if (!fileExists) {

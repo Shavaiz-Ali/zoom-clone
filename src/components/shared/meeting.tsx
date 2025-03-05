@@ -6,14 +6,16 @@ import ConfirmPasswordModel from "./confirm-password";
 
 export default function WherebyMeeting({
   meetingId,
-  personal,
+  token,
+  data,
 }: {
   meetingId: string;
-  personal: boolean;
+  token: string | undefined;
+  data: { status: number };
 }) {
   const meetingUrl = `https://yoom.whereby.com/${meetingId}`;
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [model, setModel] = useState(personal);
+  const [model, setModel] = useState(false); // Initialize model to false
 
   const router = useRouter();
 
@@ -34,34 +36,54 @@ export default function WherebyMeeting({
     };
   }, [router]);
 
+  // const verifyRoom = async () => {
+  //   try {
+  //     const response = await VerifyPersonalRooms(meetingId);
+  //     // Assuming VerifyPersonalRooms returns a NextResponse, check response.json() and then status
+  //     const data = await JSON.parse(response);
+  //     console.log(data);
+  //     if (data.status === 200) {
+  //       setIsPersonal(true);
+  //       setModel(true); // Open the modal when the room is personal
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
   useEffect(() => {
-    if (personal) {
-      setModel(true);
+    if (data && data?.status === 200) {
+      setModel(true); // Open the modal when the room is personal
     }
-  }, [model, setModel, personal]);
+  }, []);
 
   return (
     <div className="h-full">
-      {personal && <ConfirmPasswordModel model={model} setModel={setModel} />}
-      {meetingUrl && (
-        <div className="h-full">
-          {/* <h3 className="text-lg font-bold">Join Meeting:</h3>
-          <a
-            href={meetingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            {meetingUrl}
-          </a> */}
-          <iframe
-            ref={iframeRef}
-            src={meetingUrl}
-            width="100%"
-            allow="camera; microphone; fullscreen"
-            className="rounded min-h-screen !bg-dark-1"
-          />
-        </div>
+      {token ? (
+        <ConfirmPasswordModel token={token} model={model} setModel={setModel} />
+      ) : (
+        <>
+          {meetingUrl && (
+            <div className="h-full">
+              {/* <h3 className="text-lg font-bold">Join Meeting:</h3>
+              <a
+                href={meetingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                {meetingUrl}
+              </a> */}
+              <iframe
+                ref={iframeRef}
+                src={meetingUrl}
+                width="100%"
+                allow="camera; microphone; fullscreen"
+                className="rounded min-h-screen !bg-dark-1"
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

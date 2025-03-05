@@ -112,6 +112,7 @@ const MeetingCardModel = ({
             inviteLink,
           });
 
+          router.refresh();
           toast("Personal room created successfully");
           setModel(false); // Close modal after success
           break;

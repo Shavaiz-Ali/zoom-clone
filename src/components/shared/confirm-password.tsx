@@ -16,15 +16,24 @@ import { Eye, EyeOff } from "lucide-react";
 
 interface ConfirmPasswordModelProps {
   model: boolean;
+  token: string;
   setModel: (value: boolean) => void;
 }
 
 const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
   model,
+  token,
   setModel,
 }) => {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const handleEarlyVerification = async () => {
+    try {
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Dialog open={model} onOpenChange={setModel}>
