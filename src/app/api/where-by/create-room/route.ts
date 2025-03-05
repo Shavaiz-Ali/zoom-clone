@@ -1,6 +1,7 @@
 import { connectToDatabase } from "@/lib/db";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { PreviousMeeting } from "@/schemas/previous-meetings";
+import { createRoomViaWhereBy } from "@/utils/where-by";
 import { currentUser } from "@clerk/nextjs/server";
 // import bcrypt from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
@@ -13,11 +14,11 @@ interface User {
   imageUrl: string;
 }
 
-interface RequestBody {
-  isLocked: boolean;
-  roomMode: string;
-  endDate: string;
-}
+// interface RequestBody {
+//   isLocked: boolean;
+//   roomMode: string;
+//   endDate: string;
+// }
 
 const checkPassword = async (
   passcode: string | null,
@@ -89,20 +90,30 @@ export async function POST(req: NextRequest) {
 
     const userDetails = { id, email, firstName, lastName, imageUrl };
 
-    const requestBody: RequestBody = {
-      isLocked: false,
-      roomMode: "group",
-      endDate: new Date(Date.now() + 3600 * 1000).toISOString(),
-    };
+    // const requestBody: RequestBody = {
+    //   isLocked: false,
+    //   roomMode: "group",
+    //   endDate: new Date(Date.now() + 3600 * 1000).toISOString(),
+    // };
 
-    const response = await fetch("https://api.whereby.dev/v1/meetings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+    // const response = await fetch("https://api.whereby.dev/v1/meetings", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${apiKey}`,
+    //   },
+    //   body: JSON.stringify(requestBody),
+    // });
+
+    const response = await createRoomViaWhereBy();
+
+    // Check if response is a string and handle it
+    if (typeof response === "string") {
+      return NextResponse.json(
+        { error: response || "Unknown API error" },
+        { status: 500 }
+      );
+    }
 
     if (!response.ok) {
       const errorData = await response.json();

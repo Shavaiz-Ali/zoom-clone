@@ -103,7 +103,6 @@ const MeetingCardModel = ({
 
           // Generate unique meeting ID
           const inviteLink = `${BASE_URL}`;
-          const meetingId = Math.floor(10000000 + Math.random() * 90000000);
 
           // Send request to create a personal meeting room
           await axios.post("/api/where-by/create-personal-room", {
@@ -111,7 +110,6 @@ const MeetingCardModel = ({
             roomTitle: values.roomTitle,
             passcode: values.passcode,
             inviteLink,
-            meetingId,
           });
 
           toast("Personal room created successfully");
