@@ -52,14 +52,14 @@ export default function WherebyMeeting({
   // };
 
   useEffect(() => {
-    if (data && data?.status === 200) {
-      setModel(true); // Open the modal when the room is personal
+    if (data && data?.status === 200 && token) {
+      setModel(true);
     }
   }, []);
 
   return (
     <div className="h-full">
-      {token ? (
+      {model ? (
         <ConfirmPasswordModel token={token} model={model} setModel={setModel} />
       ) : (
         <>

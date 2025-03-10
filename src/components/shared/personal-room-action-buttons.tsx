@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Copy, Trash, Pencil, LucideProps } from "lucide-react";
-import React, { RefAttributes, useState } from "react";
+import React, {
+  RefAttributes,
+  useState,
+  startTransition,
+  useCallback,
+} from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -27,6 +34,7 @@ interface buttonsDataTypes {
 interface PersonalRoom {
   inviteLink: string;
   roomTitle: string;
+  passcode: string;
   _id: string;
 }
 
@@ -37,14 +45,20 @@ interface PersonalRoomActionsButtonProps {
 const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
   item,
 }) => {
-  const { roomTitle, _id, inviteLink } = item;
+  const { roomTitle, _id, passcode, inviteLink } = item;
   const [model, setModel] = useState<boolean>(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [loader, setLoader] = useState(false);
   const [loadingActions, setLoadingActions] = useState<{
     [key: string]: boolean;
   }>({});
   const router = useRouter();
   const path = usePathname();
+
+  const [formData, setFormData] = useState({
+    title: "",
+    password: "",
+  });
 
   const buttonsData: buttonsDataTypes[] = [
     {
@@ -69,40 +83,75 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
   ];
 
   // Actions
-  const handleActions = async (action: string) => {
-    if (!action) return;
+  const handleActions = useCallback(
+    async (action: string) => {
+      if (!action) return;
 
-    setLoadingActions((prev) => ({ ...prev, [action]: true }));
+      setLoadingActions((prev) => ({ ...prev, [action]: true }));
 
-    try {
-      if (action === pRoomActions.COPY) {
-        await navigator.clipboard.writeText(inviteLink);
-        toast("Link copied successfully!");
-      } else if (action === pRoomActions.DELETE) {
-        const res = await axios.delete("/api/where-by/delete-personal-room", {
-          data: { roomId: _id, path },
-        });
-        if (res.status === 200) {
-          router.refresh();
-          toast("Room Deleted Successfully");
-          setModel(false);
-        }
-      } else if (action === pRoomActions.START_MEETING) {
-        setLoadingActions((prev) => ({ ...prev, [action]: true }));
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
+      try {
+        if (action === pRoomActions.START_MEETING) {
+          setLoader(true);
+          startTransition(() => {
             router.push(inviteLink);
-          }, 2000);
-          resolve();
-        });
+            setLoader(false);
+            console.log(`Navigating to: ${inviteLink}`);
+          });
+          return;
+        }
+
+        if (action === pRoomActions.COPY) {
+          await navigator.clipboard.writeText(inviteLink);
+          toast("Link copied successfully!");
+        } else if (action === pRoomActions.DELETE) {
+          const res = await axios.delete("/api/where-by/delete-personal-room", {
+            data: { roomId: _id, path },
+          });
+          if (res.status === 200) {
+            router.refresh();
+            toast("Room Deleted Successfully");
+            setModel(false);
+          } else {
+            console.error("Delete room failed with status:", res.status);
+            toast("Failed to delete room.");
+          }
+        } else if (action === pRoomActions.Edit) {
+          console.log(formData);
+          if (formData.title.trim() === "" && formData.password.trim() === "") {
+            toast("Fill the field to update!");
+          }
+
+          // const formdata = new FormData();
+          // formdata.append("title", formData.title);
+          // formdata.append("password", formData.password);
+
+          const respone = await axios.post("/api/where-by/edit-personal-room", {
+            title: formData.title,
+            password:
+              formData.password.trim() === "" ? passcode : formData.password,
+            roomId: _id,
+          });
+
+          if (respone.status === 200) {
+            toast("Rooom updated successfully");
+            setModel(false);
+            router.refresh();
+          }
+        }
+      } catch (error: any) {
+        toast("Something went wrong! Try again later.");
+        console.error(
+          "Error during action:",
+          action,
+          error.message,
+          error.stack
+        );
+      } finally {
+        setLoadingActions((prev) => ({ ...prev, [action]: false })); // End loading
       }
-    } catch (error) {
-      toast("Something went wrong! Try again later.");
-      console.error(error);
-    } finally {
-      setLoadingActions((prev) => ({ ...prev, [action]: false }));
-    }
-  };
+    },
+    [inviteLink, path, router, _id, setModel, formData, passcode]
+  );
 
   return (
     <>
@@ -132,9 +181,13 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
               }
               handleActions(value.action);
             }}
-            disabled={loadingActions[value.action]} // Disable button while loading
+            disabled={
+              pRoomActions.START_MEETING === value.action
+                ? loader
+                : loadingActions[value.action]
+            }
           >
-            {loadingActions[value.action] && (
+            {pRoomActions.START_MEETING === value.action && loader && (
               <div className="h-6 w-6 rounded-full border-2 border-t-white border-dark-1 animate-spin" />
             )}
             {value.icon && !loadingActions[value.action] && (
@@ -154,7 +207,8 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
           type={selectedAction}
           loader={loadingActions[selectedAction]}
           handleActions={handleActions}
-          title={roomTitle}
+          formData={formData}
+          setFormData={setFormData}
         />
       )}
     </>

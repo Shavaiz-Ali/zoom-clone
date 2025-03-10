@@ -4,8 +4,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import MeetingCardModel from "./meeting-card-model";
-import { MeetingOptionModelType } from "@/constants";
-const PersonalRoomModel = () => {
+const PersonalRoomModel = ({
+  btnTitle,
+  type,
+}: {
+  btnTitle: string;
+  type: string;
+}) => {
   const [model, setModel] = useState<boolean>(false);
 
   return (
@@ -18,13 +23,13 @@ const PersonalRoomModel = () => {
           <Image src={"/nav/5.svg"} alt="plus" width={17} height={17} />
         </span>
         <span className="sm:block hidden text-[16px] font-semibold leading-5 text-white">
-          Create a new room
+          {btnTitle}
         </span>
       </Button>
       <MeetingCardModel
         model={model}
         setModel={setModel}
-        type={MeetingOptionModelType.PERSONALROOM}
+        type={type}
         title="Create Personal Room"
         btnTitle="Create room"
       />

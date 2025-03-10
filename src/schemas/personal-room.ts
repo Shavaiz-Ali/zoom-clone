@@ -22,6 +22,15 @@ const PersonalRoomSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    participants: [
+      {
+        id: { type: String, required: true },
+        email: { type: String, required: true },
+        firstName: { type: String },
+        lastName: { type: String },
+        imageUrl: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

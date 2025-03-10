@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { pRoomActions } from "./personal-room-action-buttons";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,8 @@ interface ActionConfirmModelProps {
   type: string;
   loader: boolean;
   handleActions: (value: string) => void;
-  title: string;
+  formData: { title: string; password: string };
+  setFormData: Dispatch<SetStateAction<{ title: string; password: string }>>;
 }
 
 const ActionConfirmModel: React.FC<ActionConfirmModelProps> = ({
@@ -22,14 +23,9 @@ const ActionConfirmModel: React.FC<ActionConfirmModelProps> = ({
   type,
   loader,
   handleActions,
-  title,
+  formData,
+  setFormData,
 }) => {
-  console.log(type === pRoomActions.Edit);
-  const [formData, setFormData] = useState({
-    title: title,
-    password: "",
-  });
-
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (

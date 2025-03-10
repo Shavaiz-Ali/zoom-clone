@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import { createRoomViaWhereBy } from "@/utils/where-by";
 
 const JWT_SECRET = process.env.JWT_SECRET!; // Ensure this is set in your environment variables
@@ -31,6 +31,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // const { id, emailAddresses, firstName, lastName, imageUrl } = user;
+    // const email = emailAddresses[0]?.emailAddress;
+
+    // const userDetails = { id, email, firstName, lastName, imageUrl };
+
     const response = await createRoomViaWhereBy();
 
     if (typeof response === "string") {
@@ -49,10 +54,9 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-
     // Generate JWT token for authentication instead of exposing passcode
-    const token = jwt.sign({ roomId: data.roomName, passcode }, JWT_SECRET, {
-      expiresIn: "1h",
+    const token = jwt.sign({ meetingId: data.meetingId }, JWT_SECRET, {
+      expiresIn: "30s",
     });
 
     const updatedInviteLink = `${inviteLink}${data.roomName}?token=${token}`;
@@ -63,6 +67,7 @@ export async function POST(req: NextRequest) {
       passcode, // Store in DB but not expose it in URL
       inviteLink: updatedInviteLink,
       userId: userId,
+      // participants: [userDetails],
     });
 
     if (!pRoom) {
@@ -72,9 +77,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(pathToRevalidate);
-
-    revalidatePath(pathToRevalidate);
     return NextResponse.json(
       { success: true, message: "Personal room created successfully" },
       { status: 201 }

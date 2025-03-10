@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getPersonalRooms } from "@/actions/personal-room";
+import PagesHeader from "@/components/shared/pages-header";
 import PasswordInput from "@/components/shared/password-input";
 import PersonalRoomActionsButton from "@/components/shared/personal-room-action-buttons";
-import PersonalRoomModel from "@/components/shared/personal-room-model";
+// import PersonalRoomModel from "@/components/shared/personal-room-model";
 import { Separator } from "@/components/ui/separator";
+import { MeetingOptionModelType } from "@/constants";
 import { cn } from "@/lib/utils";
 
 interface PersonalRoom {
@@ -21,12 +23,11 @@ const PersonalRoom = async () => {
 
   return (
     <div className="space-y-12 shrink">
-      <div className="flex items-start justify-between space-x-4">
-        <h1 className="text-[24px] md:text-[30px] lg:text-[42px] font-bold leading-10 text-white">
-          Personal Meeting Room
-        </h1>
-        <PersonalRoomModel />
-      </div>
+      <PagesHeader
+        btnTitle="Create a new room"
+        type={MeetingOptionModelType.PERSONALROOM}
+        title="Personal meeting room"
+      />
       {data?.data && data?.data.length > 0 ? (
         <div className="w-full">
           {data.data
