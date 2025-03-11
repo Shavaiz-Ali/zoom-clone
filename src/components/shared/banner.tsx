@@ -9,9 +9,11 @@ const Banner = () => {
       <Image
         src={"/banner.png"}
         alt="banner-image"
+        sizes="(max-width:1200px) 100vw"
         fill
-        priority
-        className="object-cover object-center"
+        // priority
+        loading="lazy"
+        className="object-cover object-center aspect-3/2"
       />
       <div className="absolute top-0 left-0 pl-6 sm:pl-11 pt-9 pb-8 w-full flex flex-col justify-between !z-30 h-full">
         <div className="py-2 px-3 flex justify-center items-center bg-[#FFFFFF0D]/5 rounded-[4px] w-[273px]">

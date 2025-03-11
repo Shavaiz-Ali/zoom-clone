@@ -67,65 +67,64 @@ const PersonalRoom = async () => {
       />
       {data?.data && data?.data.length > 0 ? (
         <div className="w-full">
-          {data.data
-            // .sort(
-            //   (a, b) =>
-            //     new Date(b.createdAt).valueOf() -
-            //     new Date(a.createdAt).valueOf()
-            // )
-            .map((item, index) => (
+          {data.data.map((item, index) => {
+            const roomDetails = [
+              { label: "Topic", value: item.roomTitle },
+              { label: "Meeting ID", value: item.meetingId },
+              {
+                label: "Passcode",
+                value: <PasswordInput passcode={item.passcode} />,
+              },
+              { label: "Invite Link", value: item.inviteLink },
+            ];
+
+            return (
               <div
                 className={cn("space-y-12", index !== 0 && "pt-11")}
                 key={item._id}
               >
                 <div className="flex justify-start items-center space-x-20">
-                  <div className="space-y-8 ">
-                    {["Topic", "Meeting ID", "Passcode", "Invite Link"].map(
-                      (value, idx) => (
-                        <div className="w-[110px]" key={idx}>
-                          <p className="text-[20px] font-medium leading-7 text-sky-1 flex items-center">
-                            {value}
-                            <span className="text-[24px]">:</span>
-                          </p>
-                        </div>
-                      )
-                    )}
+                  {/* Labels and Values in a single map */}
+                  <div className="space-y-8">
+                    {roomDetails.map(({ label }, idx) => (
+                      <div className="w-[110px]" key={idx}>
+                        <p className="text-[20px] font-medium leading-7 text-sky-1 flex items-center">
+                          {label}
+                          <span className="text-[24px]">:</span>
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="w-full space-y-8 ">
-                    {[
-                      item.roomTitle,
-                      item.meetingId,
-                      item.passcode,
-                      item.inviteLink,
-                    ].map((value, idx) => (
-                      <div key={idx}>
+
+                  <div className="w-full space-y-8">
+                    {roomDetails.map(({ value }, idx) => (
+                      <div key={idx} className="w-full">
                         {idx === 2 ? (
-                          <PasswordInput passcode={item.passcode} />
+                          value
                         ) : (
-                          <div className="w-full">
-                            <p
-                              className={cn(
-                                "text-[20px] font-bold leading-7 text-white",
-                                {
-                                  "text-blue-1 w-[500px] line-clamp-1":
-                                    idx === 3,
-                                }
-                              )}
-                            >
-                              {value}
-                            </p>
-                          </div>
+                          <p
+                            className={cn(
+                              "text-[20px] font-bold leading-7 text-white",
+                              {
+                                "text-blue-1 w-[500px] line-clamp-1": idx === 3,
+                              }
+                            )}
+                          >
+                            {value}
+                          </p>
                         )}
                       </div>
                     ))}
                   </div>
                 </div>
+
                 <PersonalRoomActionsButton item={item} />
                 {index !== data.data.length - 1 && (
                   <Separator className="h-1 bg-dark-1 w-full" />
                 )}
               </div>
-            ))}
+            );
+          })}
         </div>
       ) : (
         <p className="text-[30px] font-bold leading-10 text-white">
