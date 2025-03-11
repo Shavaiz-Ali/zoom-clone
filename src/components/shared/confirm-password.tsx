@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { verifyToken } from "@/actions/verify-token";
 import { getPersonalRoom } from "@/actions/get-single-room";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ConfirmPasswordModelProps {
   model: boolean;
@@ -31,7 +32,7 @@ const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loader, setLoader] = useState<boolean>(false);
-
+  const router = useRouter();
   const MAX_RETRIES = 3; // Set a limit to prevent infinite retries
 
   const handleEarlyVerification = React.useCallback(async () => {
@@ -46,8 +47,9 @@ const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
         const decodedData = JSON.parse(decodedResponse);
 
         if (decodedData.status === 401) {
-          toast("Room has expired!");
+          toast.error("Room has expired!");
           setLoader(false);
+          router.push("/personal-room");
           console.log(decodedData.message || "Token verification failed.");
           return;
         }
@@ -126,7 +128,7 @@ const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="absolute top-1/2 -translate-y-1/2 left-[92%] w-full"
+            className="absolute top-1/2 -translate-y-1/2 left-[92%] w-full border-none outline-none"
             onClick={() => setShowPassword((prev) => !prev)}
           >
             {!showPassword ? <Eye /> : <EyeOff />}

@@ -13,13 +13,50 @@ interface PersonalRoom {
   roomTitle: string;
   meetingId: string;
   passcode: string;
+  expiry: boolean;
   inviteLink: string;
   createdAt: string;
+}
+
+export async function generateMetadata() {
+  const title = "Personal Meeting Rooms";
+  const description =
+    "Manage and access your personalized video conference rooms in your Zoom-like workspace";
+
+  return {
+    title: `${title}${description ? ` - ${description}` : ""}`,
+    description,
+    openGraph: {
+      title: "Personal Video Rooms Management",
+      description:
+        "Create and manage secure personal meeting spaces with custom access controls in your video collaboration platform",
+      type: "website",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/personal-room`,
+      images: [
+        {
+          url: "",
+          width: 1200,
+          height: 630,
+          alt: "Personal Meeting Rooms",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Personal Video Rooms",
+      description:
+        "Maintain and organize your private meeting spaces in your video conferencing platform",
+      images: [""],
+      creator: "@videoconfapp",
+    },
+  };
 }
 
 const PersonalRoom = async () => {
   const personalRoomData: any = await getPersonalRooms();
   const data: { data: PersonalRoom[] } = JSON.parse(personalRoomData);
+
+  // const checkexpiry = data.find
 
   return (
     <div className="space-y-12 shrink">

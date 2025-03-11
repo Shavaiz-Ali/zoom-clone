@@ -35,6 +35,7 @@ interface PersonalRoom {
   inviteLink: string;
   roomTitle: string;
   passcode: string;
+  expiry: boolean;
   _id: string;
 }
 
@@ -45,7 +46,7 @@ interface PersonalRoomActionsButtonProps {
 const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
   item,
 }) => {
-  const { roomTitle, _id, passcode, inviteLink } = item;
+  const { expiry, _id, passcode, inviteLink } = item;
   const [model, setModel] = useState<boolean>(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [loader, setLoader] = useState(false);
@@ -182,7 +183,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
               handleActions(value.action);
             }}
             disabled={
-              pRoomActions.START_MEETING === value.action
+              expiry || pRoomActions.START_MEETING === value.action
                 ? loader
                 : loadingActions[value.action]
             }
@@ -195,11 +196,14 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
                 <value.icon size={12} />
               </span>
             )}
-            <span>{value.title}</span>
+            <span>
+              {pRoomActions.START_MEETING === value.action && expiry
+                ? "Expired"
+                : value.title}
+            </span>
           </Button>
         ))}
       </div>
-
       {model && selectedAction && (
         <ActionConfirmModel
           model={model}

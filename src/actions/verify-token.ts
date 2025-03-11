@@ -1,9 +1,11 @@
 "use server";
 
+import { PersonalRoom } from "@/schemas/personal-room";
 import { jwtDecode } from "jwt-decode";
 
 interface decodedData {
   meetingId: string;
+  roomId: string;
   exp: number;
   iat: number;
 }
@@ -20,11 +22,19 @@ export const verifyToken = async (token: string) => {
   try {
     const decoded: decodedData = jwtDecode(token);
 
+    console.log("decoded token", decoded);
+
     if (decoded && decoded.exp) {
       const expiryTimeInSeconds = decoded.exp;
       const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current time in seconds
 
       if (expiryTimeInSeconds < currentTimeInSeconds) {
+        const updateRoom = await PersonalRoom.find(
+          { meetingId: decoded.meetingId },
+          { expiry: true },
+          { new: true }
+        );
+        console.log("room updated", updateRoom);
         return JSON.stringify({
           success: false,
           message: "Token has expired",

@@ -55,15 +55,20 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     // Generate JWT token for authentication instead of exposing passcode
-    const token = jwt.sign({ meetingId: data.meetingId }, JWT_SECRET, {
-      expiresIn: "30s",
-    });
+    const token = jwt.sign(
+      { meetingId: data.meetingId, roomId: data._id },
+      JWT_SECRET,
+      {
+        expiresIn: "10s",
+      }
+    );
 
     const updatedInviteLink = `${inviteLink}${data.roomName}?token=${token}`;
 
     const pRoom = await PersonalRoom.create({
       ...body,
       meetingId: data?.meetingId,
+      roomId: data?.roomName,
       passcode, // Store in DB but not expose it in URL
       inviteLink: updatedInviteLink,
       userId: userId,
@@ -78,7 +83,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Personal room created successfully" },
+      { success: true, message: "Personal room created successfully", pRoom },
       { status: 201 }
     );
   } catch (error) {

@@ -22,6 +22,11 @@ const PersonalRoomSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    expiry: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
     participants: [
       {
         id: { type: String, required: true },

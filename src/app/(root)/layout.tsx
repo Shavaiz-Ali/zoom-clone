@@ -3,6 +3,7 @@ import Sidebar from "@/components/shared/sidebar";
 import Header from "@/components/shared/header";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
+
 export default function RootLayout({
   children,
 }: Readonly<{
