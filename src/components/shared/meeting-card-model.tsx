@@ -19,6 +19,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
+import DateTImePicker from "./date-time-picker";
 
 interface MeetingCardModelProps {
   model: boolean;
@@ -36,12 +37,16 @@ const MeetingCardModel = ({
   btnTitle,
 }: MeetingCardModelProps) => {
   const [values, setValues] = useState({
-    description: "",
     time: "",
     meetingLink: "",
     meetingTitle: "",
     roomTitle: "",
     passcode: "",
+  });
+  const [selectedDateTime, setSelectedDateTime] = useState({
+    description: "",
+    startTime: "",
+    startDate: "",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const { createMeeting, loader, setLoader } = useCreateMeeting();
@@ -115,6 +120,34 @@ const MeetingCardModel = ({
           router.refresh();
           toast("Personal room created successfully");
           setModel(false); // Close modal after success
+          break;
+
+        case MeetingOptionModelType.SCHEDULEMEETING:
+          console.log(selectedDateTime);
+          if (
+            !selectedDateTime.startDate.trim() ||
+            !selectedDateTime.startTime.trim() ||
+            !selectedDateTime.description.trim()
+          ) {
+            toast.error("All fields were required!");
+            return;
+          }
+
+          const URL = process.env.NEXT_PUBLIC_BASE_URL;
+          if (!URL) return; // Ensure base URL is available
+
+          // Generate unique meeting ID
+          const inviteScheduleURL = `${URL}`;
+
+          const response = await axios.post(
+            "/api/where-by/schedule-meeting",
+            selectedDateTime
+          );
+          console.log(response);
+
+          router.push("/upcoming");
+          toast.success(response.data.message || "Room Scheduled successfully");
+          setModel(false);
           break;
 
         // Default case to handle unexpected meeting types
@@ -211,6 +244,13 @@ const MeetingCardModel = ({
                 <Textarea
                   name="description"
                   id="description"
+                  value={selectedDateTime.description}
+                  onChange={(e) =>
+                    setSelectedDateTime({
+                      ...selectedDateTime,
+                      description: e.target.value,
+                    })
+                  }
                   className=" border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium"
                 />
               </div>
@@ -218,18 +258,9 @@ const MeetingCardModel = ({
                 <label className="text-base font-normal leading-[22.4px] text-sky-2">
                   Select Date and Time
                 </label>
-                <ReactDatePicker
-                  // selected={"hjkds"}
-                  onChange={(date) =>
-                    // setValues({ ...values, dateTime: date! })
-                    {}
-                  }
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={15}
-                  timeCaption="time"
-                  dateFormat="MMMM d, yyyy h:mm aa"
-                  className="w-full rounded bg-dark-3 p-2 focus:outline-none"
+                <DateTImePicker
+                  selectedDateTime={selectedDateTime}
+                  setSelectedDateTime={setSelectedDateTime}
                 />
               </div>
             </div>
