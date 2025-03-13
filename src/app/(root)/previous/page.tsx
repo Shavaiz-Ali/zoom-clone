@@ -54,8 +54,9 @@ const PreviousMeetings = async () => {
     <div className="space-y-12 w-full">
       <PagesHeader
         title="Previous Meetings"
+        modelTitle="Start Meeting"
         type={MeetingOptionModelType.NEWMEETING}
-        btnTitle="Launch New Conference"
+        btnTitle="Start new meeting"
       />
       {data?.data && data?.data?.length > 0 ? (
         <div className="space-y-8">

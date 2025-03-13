@@ -7,9 +7,11 @@ import MeetingCardModel from "./meeting-card-model";
 const PersonalRoomModel = ({
   btnTitle,
   type,
+  modelTitle,
 }: {
   btnTitle: string;
   type: string;
+  modelTitle: string;
 }) => {
   const [model, setModel] = useState<boolean>(false);
 
@@ -30,7 +32,7 @@ const PersonalRoomModel = ({
         model={model}
         setModel={setModel}
         type={type}
-        title="Create Personal Room"
+        title={modelTitle}
         btnTitle="Create room"
       />
     </>

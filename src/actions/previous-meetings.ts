@@ -26,7 +26,7 @@ export const getPreviousMeetings = async () => {
       ],
     }).sort({ createdAt: -1 });
 
-    if (!previousMeetings) {
+    if (!previousMeetings || previousMeetings?.length < 1) {
       return NextResponse.json(
         { success: false, message: "No personal rooms created yet!" },
         { status: 404 }

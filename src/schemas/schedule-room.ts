@@ -23,6 +23,10 @@ const ScheduleRoomSchema = new mongoose.Schema(
         imageUrl: { type: String },
       },
     ],
+    inviteLink: {
+      type: String,
+      required: true,
+    },
     userId: {
       type: String,
       required: true,

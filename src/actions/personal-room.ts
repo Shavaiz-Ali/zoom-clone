@@ -23,7 +23,7 @@ export const getPersonalRooms = async () => {
       userId,
     }).sort({ createdAt: -1 });
 
-    if (!personalRoom) {
+    if (!personalRoom || personalRoom?.length < 1) {
       return NextResponse.json(
         { success: false, message: "No personal rooms created yet!" },
         { status: 404 }

@@ -139,10 +139,10 @@ const MeetingCardModel = ({
           // Generate unique meeting ID
           const inviteScheduleURL = `${URL}`;
 
-          const response = await axios.post(
-            "/api/where-by/schedule-meeting",
-            selectedDateTime
-          );
+          const response = await axios.post("/api/where-by/schedule-meeting", {
+            ...selectedDateTime,
+            inviteLink: inviteScheduleURL,
+          });
           console.log(response);
 
           router.push("/upcoming");

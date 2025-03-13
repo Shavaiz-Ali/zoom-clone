@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getUpcomingMeetings } from "@/actions/get-upcoming-meetings";
+import PagesHeader from "@/components/shared/pages-header";
+import UpcomingMeetingCard from "@/components/shared/upcoming-meeting-card";
+import { MeetingOptionModelType } from "@/constants";
 import React from "react";
 
 export async function generateMetadata() {
@@ -34,9 +39,31 @@ export async function generateMetadata() {
   };
 }
 const UpcomingMeetings = async () => {
-  // const data = await
+  const data = await getUpcomingMeetings();
+  const parseData = data?.data ? JSON.parse(data.data) : null;
 
-  return <div></div>;
+  return (
+    <div className="space-y-12 w-full">
+      <PagesHeader
+        title="Upcoming meetings"
+        modelTitle="Create Meeting"
+        btnTitle="Schedule a meeting"
+        type={MeetingOptionModelType.SCHEDULEMEETING}
+      />
+
+      {parseData && parseData?.length > 0 ? (
+        <div className="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6 w-full">
+          {parseData.map((item: any) => (
+            <UpcomingMeetingCard item={item} key={item._id} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-[30px] font-bold leading-10 text-white">
+          {data?.message ? data?.message : "No meeting scheduled yet!"}
+        </p>
+      )}
+    </div>
+  );
 };
 
 export default UpcomingMeetings;

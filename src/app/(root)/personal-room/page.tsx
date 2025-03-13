@@ -62,6 +62,7 @@ const PersonalRoom = async () => {
     <div className="space-y-12 shrink">
       <PagesHeader
         btnTitle="Create a new room"
+        modelTitle="Create Personal Room"
         type={MeetingOptionModelType.PERSONALROOM}
         title="Personal meeting room"
       />
