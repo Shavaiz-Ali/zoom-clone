@@ -20,6 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import DateTImePicker from "./date-time-picker";
+import MeetingCreatedBanner from "./meeting-created-banner";
 
 interface MeetingCardModelProps {
   model: boolean;
@@ -49,6 +50,9 @@ const MeetingCardModel = ({
     startDate: "",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [successModel, setSuccessModel] = useState<boolean>(false);
+  const [linkToCopy, setLinkToCopy] = useState<string>("");
+
   const { createMeeting, loader, setLoader } = useCreateMeeting();
   const router = useRouter();
   const path = usePathname();
@@ -110,14 +114,19 @@ const MeetingCardModel = ({
           const inviteLink = `${BASE_URL}`;
 
           // Send request to create a personal meeting room
-          await axios.post("/api/where-by/create-personal-room", {
-            pathToRevalidate: path,
-            roomTitle: values.roomTitle,
-            passcode: values.passcode,
-            inviteLink,
-          });
+          const responseData = await axios.post(
+            "/api/where-by/create-personal-room",
+            {
+              pathToRevalidate: path,
+              roomTitle: values.roomTitle,
+              passcode: values.passcode,
+              inviteLink,
+            }
+          );
 
           router.refresh();
+          setLinkToCopy(responseData.data.inviteLink);
+          setSuccessModel(true);
           toast("Personal room created successfully");
           setModel(false); // Close modal after success
           break;
@@ -144,8 +153,9 @@ const MeetingCardModel = ({
             inviteLink: inviteScheduleURL,
           });
           console.log(response);
-
-          router.push("/upcoming");
+          setSuccessModel(true);
+          setLinkToCopy(response.data.inviteLink);
+          router.refresh();
           toast.success(response.data.message || "Room Scheduled successfully");
           setModel(false);
           break;
@@ -164,129 +174,138 @@ const MeetingCardModel = ({
   };
 
   return (
-    <Dialog open={model} onOpenChange={setModel}>
-      <DialogContent className="flex w-[95%] max-w-[520px] flex-col gap-6 border-none bg-dark-2 px-6 py-9 text-white">
-        <DialogHeader className="p-0">
-          <DialogTitle
-            className={cn("text-[30px] font-bold leading-10 text-white", {
-              "text-center":
-                type === MeetingOptionModelType.JOINMEETING ||
-                type === MeetingOptionModelType.NEWMEETING ||
-                type === MeetingOptionModelType.PERSONALROOM,
-            })}
-          >
-            {title}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="w-full">
-          {(type === MeetingOptionModelType.JOINMEETING ||
-            type === MeetingOptionModelType.NEWMEETING ||
-            type === MeetingOptionModelType.PERSONALROOM) && (
-            <Input
-              type="text"
-              name="link"
-              className="py-[10px] px-3 w-full border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium placeholder:text-slate-500"
-              placeholder={
-                type === MeetingOptionModelType.JOINMEETING
-                  ? "Meeting link"
-                  : type === MeetingOptionModelType.NEWMEETING
-                  ? "Meeting Title"
-                  : "Room title"
-              }
-              value={
-                type === MeetingOptionModelType.JOINMEETING
-                  ? values.meetingLink
-                  : type === MeetingOptionModelType.NEWMEETING
-                  ? values.meetingTitle
-                  : values.roomTitle
-              }
-              onChange={(e) => {
-                if (type === MeetingOptionModelType.JOINMEETING) {
-                  setValues({ ...values, meetingLink: e.target.value });
-                } else if (type === MeetingOptionModelType.NEWMEETING) {
-                  setValues({ ...values, meetingTitle: e.target.value });
-                } else {
-                  setValues({ ...values, roomTitle: e.target.value });
-                }
-              }}
-            />
-          )}
-          {type === MeetingOptionModelType.PERSONALROOM && (
-            <div className="relative mt-3 w-full ">
+    <>
+      <Dialog open={model} onOpenChange={setModel}>
+        <DialogContent className="flex w-[95%] max-w-[520px] flex-col gap-6 border-none bg-dark-2 px-6 py-9 text-white">
+          <DialogHeader className="p-0">
+            <DialogTitle
+              className={cn("text-[30px] font-bold leading-10 text-white", {
+                "text-center":
+                  type === MeetingOptionModelType.JOINMEETING ||
+                  type === MeetingOptionModelType.NEWMEETING ||
+                  type === MeetingOptionModelType.PERSONALROOM,
+              })}
+            >
+              {title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="w-full">
+            {(type === MeetingOptionModelType.JOINMEETING ||
+              type === MeetingOptionModelType.NEWMEETING ||
+              type === MeetingOptionModelType.PERSONALROOM) && (
               <Input
-                type={showPassword ? "text" : "password"}
+                type="text"
                 name="link"
                 className="py-[10px] px-3 w-full border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium placeholder:text-slate-500"
-                placeholder={"Add a password"}
-                value={values.passcode}
-                onChange={(e) =>
-                  setValues({ ...values, passcode: e.target.value })
+                placeholder={
+                  type === MeetingOptionModelType.JOINMEETING
+                    ? "Meeting link"
+                    : type === MeetingOptionModelType.NEWMEETING
+                    ? "Meeting Title"
+                    : "Room title"
                 }
-              />
-              <button
-                className="absolute top-1/2 -translate-y-1/2 left-[92%] w-full"
-                onClick={() => setShowPassword((prev) => !prev)}
-              >
-                {!showPassword ? <Eye /> : <EyeOff />}
-              </button>
-            </div>
-          )}
-
-          {type === MeetingOptionModelType.SCHEDULEMEETING && (
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="text-[16px] font-normal leading-5 text-sky-2"
-                >
-                  Add a description
-                </Label>
-                <Textarea
-                  name="description"
-                  id="description"
-                  value={selectedDateTime.description}
-                  onChange={(e) =>
-                    setSelectedDateTime({
-                      ...selectedDateTime,
-                      description: e.target.value,
-                    })
+                value={
+                  type === MeetingOptionModelType.JOINMEETING
+                    ? values.meetingLink
+                    : type === MeetingOptionModelType.NEWMEETING
+                    ? values.meetingTitle
+                    : values.roomTitle
+                }
+                onChange={(e) => {
+                  if (type === MeetingOptionModelType.JOINMEETING) {
+                    setValues({ ...values, meetingLink: e.target.value });
+                  } else if (type === MeetingOptionModelType.NEWMEETING) {
+                    setValues({ ...values, meetingTitle: e.target.value });
+                  } else {
+                    setValues({ ...values, roomTitle: e.target.value });
                   }
-                  className=" border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium"
-                />
-              </div>
-              <div className="flex w-full flex-col gap-2.5">
-                <label className="text-base font-normal leading-[22.4px] text-sky-2">
-                  Select Date and Time
-                </label>
-                <DateTImePicker
-                  selectedDateTime={selectedDateTime}
-                  setSelectedDateTime={setSelectedDateTime}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-        <DialogFooter className="sm:justify-start">
-          <Button
-            type="button"
-            variant="secondary"
-            className={cn(
-              "bg-blue-1 rounded-[4px] py-2 px-5 text-white text-[16px] font-[500] leading-[22px] w-full -3 focus-visible:ring-0 focus-visible:ring-offset-0 ",
-              {
-                "flex justify-center items-center gap-x-2": loader,
-              }
+                }}
+              />
             )}
-            onClick={() => handleActions()}
-            disabled={loader}
-          >
-            {loader && (
-              <div className="h-6 w-6 rounded-full border-2 border-t-white border-dark-1  animate-spin" />
+            {type === MeetingOptionModelType.PERSONALROOM && (
+              <div className="relative mt-3 w-full ">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  name="link"
+                  className="py-[10px] px-3 w-full border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium placeholder:text-slate-500"
+                  placeholder={"Add a password"}
+                  value={values.passcode}
+                  onChange={(e) =>
+                    setValues({ ...values, passcode: e.target.value })
+                  }
+                />
+                <button
+                  className="absolute top-1/2 -translate-y-1/2 left-[92%] w-full"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  {!showPassword ? <Eye /> : <EyeOff />}
+                </button>
+              </div>
             )}
-            {btnTitle}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+            {type === MeetingOptionModelType.SCHEDULEMEETING && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="description"
+                    className="text-[16px] font-normal leading-5 text-sky-2"
+                  >
+                    Add a description
+                  </Label>
+                  <Textarea
+                    name="description"
+                    id="description"
+                    value={selectedDateTime.description}
+                    onChange={(e) =>
+                      setSelectedDateTime({
+                        ...selectedDateTime,
+                        description: e.target.value,
+                      })
+                    }
+                    className=" border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0 h-[40px] rounded-[4px] text-white text-sm font-medium"
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-2.5">
+                  <label className="text-base font-normal leading-[22.4px] text-sky-2">
+                    Select Date and Time
+                  </label>
+                  <DateTImePicker
+                    selectedDateTime={selectedDateTime}
+                    setSelectedDateTime={setSelectedDateTime}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button
+              type="button"
+              variant="secondary"
+              className={cn(
+                "bg-blue-1 rounded-[4px] py-2 px-5 text-white text-[16px] font-[500] leading-[22px] w-full -3 focus-visible:ring-0 focus-visible:ring-offset-0 ",
+                {
+                  "flex justify-center items-center gap-x-2": loader,
+                }
+              )}
+              onClick={() => handleActions()}
+              disabled={loader}
+            >
+              {loader && (
+                <div className="h-6 w-6 rounded-full border-2 border-t-white border-dark-1  animate-spin" />
+              )}
+              {btnTitle}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {successModel && (
+        <MeetingCreatedBanner
+          model={successModel}
+          setModel={setSuccessModel}
+          link={linkToCopy}
+        />
+      )}
+    </>
   );
 };
 

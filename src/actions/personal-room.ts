@@ -3,7 +3,6 @@
 import { connectToDatabase } from "@/lib/db";
 import { PersonalRoom } from "@/schemas/personal-room";
 import { currentUser } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 
 export const getPersonalRooms = async () => {
   try {
@@ -24,10 +23,11 @@ export const getPersonalRooms = async () => {
     }).sort({ createdAt: -1 });
 
     if (!personalRoom || personalRoom?.length < 1) {
-      return NextResponse.json(
-        { success: false, message: "No personal rooms created yet!" },
-        { status: 404 }
-      );
+      return JSON.stringify({
+        success: false,
+        message: "No personal rooms created yet!",
+        status: 404,
+      });
     }
 
     return JSON.stringify({ success: true, data: personalRoom, status: 200 });

@@ -83,7 +83,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Personal room created successfully", pRoom },
+      {
+        success: true,
+        message: "Personal room created successfully",
+        inviteLink: pRoom.inviteLink,
+      },
       { status: 201 }
     );
   } catch (error) {

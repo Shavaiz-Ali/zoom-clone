@@ -29,7 +29,7 @@ const UpcomingMeetingsActionButton = ({
   return (
     <div className="flex items-center gap-x-2 ">
       <Button
-        className="w-20 h-10 py-2 px-5 bg-blue-1 rounded-[4px] text-[16px] font-semibold text-white"
+        className=" h-10 py-2 px-5 bg-blue-1 rounded-[4px] text-[16px] font-semibold text-white"
         onClick={() => handleStartMeeting()}
         disabled={loader}
       >

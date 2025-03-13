@@ -73,7 +73,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Room scheduled successfully!" },
+      {
+        success: true,
+        message: "Room scheduled successfully!",
+        inviteLink: newSchedule.inviteLink,
+      },
       { status: 201 }
     );
   } catch (error) {
