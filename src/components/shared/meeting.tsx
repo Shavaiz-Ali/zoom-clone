@@ -8,10 +8,12 @@ export default function WherebyMeeting({
   meetingId,
   token,
   data,
+  roomId,
 }: {
   meetingId: string;
   token: string | undefined;
   data: { status: number };
+  roomId: string | undefined;
 }) {
   const meetingUrl = `https://yoom.whereby.com/${meetingId}`;
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -60,7 +62,12 @@ export default function WherebyMeeting({
   return (
     <div className="h-full">
       {model ? (
-        <ConfirmPasswordModel token={token} model={model} setModel={setModel} />
+        <ConfirmPasswordModel
+          token={token}
+          model={model}
+          setModel={setModel}
+          roomId={roomId}
+        />
       ) : (
         <>
           {meetingUrl && (

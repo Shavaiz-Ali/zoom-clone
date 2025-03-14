@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 interface ConfirmPasswordModelProps {
   model: boolean;
   token: string | undefined;
+  roomId: string | undefined;
   setModel: (value: boolean) => void;
 }
 
@@ -28,6 +29,7 @@ const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
   model,
   token,
   setModel,
+  roomId,
 }) => {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -43,7 +45,7 @@ const ConfirmPasswordModel: React.FC<ConfirmPasswordModelProps> = ({
 
     while (retries < MAX_RETRIES) {
       try {
-        const decodedResponse = await verifyToken(token);
+        const decodedResponse = await verifyToken(token, roomId);
         const decodedData = JSON.parse(decodedResponse);
 
         if (decodedData.status === 401) {

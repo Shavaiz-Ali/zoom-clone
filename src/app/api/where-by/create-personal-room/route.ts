@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       { meetingId: data.meetingId, roomId: data._id },
       JWT_SECRET,
       {
-        expiresIn: "10s",
+        expiresIn: "5s",
       }
     );
 

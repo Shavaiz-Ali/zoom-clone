@@ -94,7 +94,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
         if (action === pRoomActions.START_MEETING) {
           setLoader(true);
           startTransition(() => {
-            router.push(inviteLink);
+            router.push(`${inviteLink}&roomId=${_id}`);
             setLoader(false);
             console.log(`Navigating to: ${inviteLink}`);
           });
@@ -161,7 +161,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
           <Button
             key={value.title}
             className={cn(
-              "px-5 py-3 text-[14px] font-semibold text-white leading-5 bg-blue-1 rounded-[4px]",
+              "px-5 py-3 text-[14px] font-semibold text-white leading-5 bg-blue-1 rounded-[4px] disabled:cursor-not-allowed",
               {
                 "flex justify-center items-center gap-x-2 text-sky-1":
                   value.icon,
@@ -183,9 +183,8 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
               handleActions(value.action);
             }}
             disabled={
-              expiry || pRoomActions.START_MEETING === value.action
-                ? loader
-                : loadingActions[value.action]
+              (expiry && pRoomActions.START_MEETING === value.action) ||
+              loadingActions[value.action]
             }
           >
             {pRoomActions.START_MEETING === value.action && loader && (
@@ -198,7 +197,7 @@ const PersonalRoomActionsButton: React.FC<PersonalRoomActionsButtonProps> = ({
             )}
             <span>
               {pRoomActions.START_MEETING === value.action && expiry
-                ? "Expired"
+                ? "Room expired"
                 : value.title}
             </span>
           </Button>

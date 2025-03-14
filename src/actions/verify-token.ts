@@ -10,7 +10,10 @@ interface decodedData {
   iat: number;
 }
 
-export const verifyToken = async (token: string) => {
+export const verifyToken = async (
+  token: string,
+  roomId: string | undefined
+) => {
   if (!token) {
     return JSON.stringify({
       success: false,
@@ -22,19 +25,16 @@ export const verifyToken = async (token: string) => {
   try {
     const decoded: decodedData = jwtDecode(token);
 
-    console.log("decoded token", decoded);
-
     if (decoded && decoded.exp) {
       const expiryTimeInSeconds = decoded.exp;
       const currentTimeInSeconds = Math.floor(Date.now() / 1000); // Current time in seconds
 
       if (expiryTimeInSeconds < currentTimeInSeconds) {
-        const updateRoom = await PersonalRoom.find(
-          { meetingId: decoded.meetingId },
+        await PersonalRoom.findByIdAndUpdate(
+          { _id: roomId },
           { expiry: true },
           { new: true }
         );
-        console.log("room updated", updateRoom);
         return JSON.stringify({
           success: false,
           message: "Token has expired",

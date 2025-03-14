@@ -43,12 +43,12 @@ export async function generateMetadata({
 
 interface MeetingProps {
   params: Promise<{ meetingId: string } | any>;
-  searchParams: Promise<{ token?: string | undefined }>;
+  searchParams: Promise<{ token?: string; roomId: string | undefined }>;
 }
 
 const Meeting: React.FC<MeetingProps> = async ({ params, searchParams }) => {
   const searchParamsResolved = await searchParams;
-  const { token } = searchParamsResolved;
+  const { token, roomId } = searchParamsResolved;
   const { meetingId } = await params;
 
   const response = await VerifyPersonalRooms(meetingId);
@@ -56,7 +56,12 @@ const Meeting: React.FC<MeetingProps> = async ({ params, searchParams }) => {
 
   return (
     <div className="w-full">
-      <WherebyMeeting data={data} meetingId={meetingId} token={token} />
+      <WherebyMeeting
+        data={data}
+        meetingId={meetingId}
+        token={token}
+        roomId={roomId}
+      />
     </div>
   );
 };

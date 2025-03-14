@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Room updated succesfully!", updateRoom },
+      { success: true, message: "Room updated succesfully!" },
       { status: 200 }
     );
   } catch (error) {
