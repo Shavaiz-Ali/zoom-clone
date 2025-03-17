@@ -50,7 +50,8 @@ export async function generateMetadata() {
       creator: "@videoconfapp",
     },
   };
-}
+
+export const maxDuration = 60;
 
 const PersonalRoom = async () => {
   const personalRoomData: any = await getPersonalRooms();
