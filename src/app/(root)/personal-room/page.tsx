@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { MeetingOptionModelType } from "@/constants";
 import { cn } from "@/lib/utils";
 
+export const maxDuration = 60;
+
 interface PersonalRoom {
   _id: string;
   roomTitle: string;
@@ -50,8 +52,7 @@ export async function generateMetadata() {
       creator: "@videoconfapp",
     },
   };
-
-export const maxDuration = 60;
+}
 
 const PersonalRoom = async () => {
   const personalRoomData: any = await getPersonalRooms();
